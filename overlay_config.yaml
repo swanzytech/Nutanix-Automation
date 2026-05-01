@@ -1,0 +1,9 @@
+overlays:
+  - name: "Test-Overlay"
+    vpc: "Test-VPC"
+    network_ip: "10.30.0.0"
+    prefix: 24
+    gateway_ip: "10.30.0.1"
+    pool_start: "10.30.0.10"
+    pool_end: "10.30.0.50"
+    is_external: true

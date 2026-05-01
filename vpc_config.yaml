@@ -1,0 +1,7 @@
+vpcs:
+  - name: "Child-VPC-1"
+    external_subnet: "Test-Overlay"
+
+  - name: "Child-VPC-2"
+    external_subnet: "Test-Overlay"
+    routable_cidr: "10.40.0.0/24"

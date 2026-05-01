@@ -1,0 +1,17 @@
+subnets:
+  - name: "Test-External"
+    vlan_id: 1
+    network_ip: "10.10.100.0"
+    prefix: 24
+    gateway_ip: "10.10.100.1"
+    pool_start: "10.10.100.10"
+    pool_end: "10.10.100.50"
+    is_external: true
+
+  - name: "Test-Internal"
+    vlan_id: 2
+    network_ip: "10.10.101.0"
+    prefix: 24
+    gateway_ip: "10.10.101.1"
+    pool_start: "10.10.101.10"
+    pool_end: "10.10.101.50"

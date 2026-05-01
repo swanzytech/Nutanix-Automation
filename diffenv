@@ -1,0 +1,23 @@
+Great question — right now your .env is hardcoded to one PC. The cleanest way to handle multiple environments is to have a .env file per environment and pass which one you want at runtime.
+Option 1 — Multiple env files (simplest)
+bash.env.prod
+.env.dev
+.env.dr
+Each one looks the same but with different IPs/credentials:
+PC_IP=10.10.20.24
+PC_USER=admin
+PC_PASSWORD=yourpassword
+Then you pass which environment you want when running the script:
+bashpython3 add_erp.py --env prod
+python3 add_erp.py --env dr
+Option 2 — Single env file with multiple environments
+PROD_PC_IP=10.10.20.24
+PROD_PC_USER=admin
+PROD_PC_PASSWORD=password
+
+DR_PC_IP=10.10.30.24
+DR_PC_USER=admin
+DR_PC_PASSWORD=password
+Option 1 is cleaner and safer — credentials stay separate per environment and you can .gitignore all *.env files.
+The change lives in client.py so all your scripts get it automatically — that's the beauty of having the shared client.
+Want me to build that out?

@@ -1,0 +1,16 @@
+local_gateways:
+  - name: "BGP-LOCAL"
+    subnet: "Test-Internal"
+    vpc: "Test-VPC"
+    cluster: "SwanzyTech-NTX01"
+    asn: 65298
+    static_ips:
+      - "10.10.101.2"
+      - "10.10.101.3"
+    gateway_ip: "10.10.101.1"
+    prefix: 24
+
+remote_gateways:
+  - name: "BGP-REMOTE"
+    service_ip: "10.10.100.1"
+    asn: 65299
