@@ -1,3 +1,9 @@
+# ============================================================
+# Target Cluster
+# Name of the Prism Element cluster where VLAN subnets and the
+# local BGP gateway will be deployed. Must match the cluster
+# name exactly as it appears in Prism Central.
+# ============================================================
 cluster: "SwanzyTech-NTX01"
 
 # ============================================================
