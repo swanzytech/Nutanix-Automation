@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 
 urllib3.disable_warnings()
-load_dotenv(os.path.expanduser("~/nutanix-automation/.env"))
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 class NutanixClient:
     def __init__(self):
