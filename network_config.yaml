@@ -1,0 +1,98 @@
+# ============================================================
+# STEP 1 — VLAN Subnets
+# Physical subnets on the cluster. Created first since VPCs
+# and gateways depend on them.
+# ============================================================
+subnets:
+  # External subnet — routable uplink for the Transit VPC
+  - name: "ZEN-SV2-VPCr"
+    vlan_id: 427
+    network_ip: "198.18.129.248"
+    prefix: 29
+    gateway_ip: "198.18.129.249"
+    pool_start: "198.18.129.250"
+    pool_end: "198.18.129.251"
+    is_external: true
+
+  # Internal subnet — used by the local BGP gateway for peering
+  - name: "ZEN-SV2-BGP-RR"
+    vlan_id: 426
+    network_ip: "198.18.129.240"
+    prefix: 29
+    gateway_ip: "198.18.129.241"
+    pool_start: "198.18.129.242"
+    pool_end: "198.18.129.243"
+
+# ============================================================
+# STEP 2 — Transit VPC
+# Hub VPC that connects to the physical network via ZEN-SV2-VPCr.
+# Child VPCs attach to the transit overlay inside this VPC.
+# ============================================================
+transit_vpcs:
+  - name: "ZEN-SV2-Transit-VPC"
+    external_subnet: "ZEN-SV2-VPCr"
+    routable_cidr: "10.0.10.0/24"
+    vpc_type: TRANSIT
+
+# ============================================================
+# STEP 3 — Transit Overlay
+# Overlay subnet inside the Transit VPC marked is_external=true
+# so child VPCs can use it as their uplink.
+# ============================================================
+transit_overlays:
+  - name: "ZEN-SV2-Transit-OVERLAY"
+    vpc: "ZEN-SV2-Transit-VPC"
+    network_ip: "198.18.207.232"
+    prefix: 29
+    gateway_ip: "198.18.207.233"
+    pool_start: "198.18.207.234"
+    pool_end: "198.18.207.237"
+    is_external: true
+
+# ============================================================
+# STEP 4 — Child VPCs
+# Tenant VPCs that attach to the Transit VPC via
+# ZEN-SV2-Transit-OVERLAY as their external subnet.
+# ============================================================
+vpcs:
+  - name: "ZEN-SV2-ACTIVE"
+    external_subnet: "ZEN-SV2-Transit-OVERLAY"
+
+  - name: "ZEN-SV2-WORKLOADS"
+    external_subnet: "ZEN-SV2-Transit-OVERLAY"
+    routable_cidr: "10.0.10.0/24"
+
+# ============================================================
+# STEP 5 — Child Overlay Subnets
+# Overlay subnets inside child VPCs for workload traffic.
+# ============================================================
+overlays:
+  - name: "ZEN-AT4-DRaaS"
+    vpc: "ZEN-SV2-WORKLOADS"
+    network_ip: "10.0.10.0"
+    prefix: 24
+    gateway_ip: "10.0.10.1"
+    pool_start: "10.0.10.2"
+    pool_end: "10.0.10.253"
+
+# ============================================================
+# STEP 6 — Gateways
+# BGP gateways for north-south routing through the Transit VPC.
+# Local gateway runs on-cluster; remote gateway is the upstream peer.
+# ============================================================
+local_gateways:
+  - name: "ZEN-SV2-BGP-LOCAL"
+    subnet: "ZEN-SV2-BGP-RR"
+    vpc: "ZEN-SV2-Transit-VPC"
+    cluster: "SwanzyTech-NTX01"
+    asn: 65299
+    static_ips:
+      - "198.18.129.242"
+      - "198.18.129.243"
+    gateway_ip: "198.18.129.241"
+    prefix: 29
+
+remote_gateways:
+  - name: "ZEN-SV2-BGP-REMOTE"
+    service_ip: "198.18.129.249"
+    asn: 65298
