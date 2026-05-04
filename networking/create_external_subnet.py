@@ -14,26 +14,24 @@ client = NutanixClient()
 with open(os.path.join(_here, "subnet_config.yaml"), "r") as f:
     config = yaml.safe_load(f)
 
-subnets = config.get("subnets", [])
+cluster_name = config.get("cluster")
+subnets      = config.get("subnets", [])
 
 if not subnets:
     print("No subnets found in subnet_config.yaml")
     exit(1)
 
 # --------------------------------------------------
-# List clusters so user can pick one
+# Resolve cluster by name
 # --------------------------------------------------
 print("\nFetching clusters...")
-clusters = client.get("/clustermgmt/v4.0/config/clusters")
-
-print(f"\n{'#':<4} {'Name':<30} {'ExtId':<40}")
-print("-" * 75)
-for i, c in enumerate(clusters):
-    print(f"{i:<4} {c.get('name',''):<30} {c.get('extId',''):<40}")
-
-print()
-choice         = int(input("Select cluster #: "))
-cluster_ext_id = clusters[choice].get("extId")
+clusters       = client.get("/clustermgmt/v4.0/config/clusters")
+clusters_map   = {c.get("name"): c.get("extId") for c in clusters}
+cluster_ext_id = clusters_map.get(cluster_name)
+if not cluster_ext_id:
+    print(f"ERROR: cluster '{cluster_name}' not found in Prism")
+    exit(1)
+print(f"Using cluster: {cluster_name} ({cluster_ext_id})")
 
 # --------------------------------------------------
 # Get vs0 automatically

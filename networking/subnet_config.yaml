@@ -1,3 +1,5 @@
+cluster: "SwanzyTech-NTX01"
+
 subnets:
   - name: "Test-External"
     vlan_id: 1

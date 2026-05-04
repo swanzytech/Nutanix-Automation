@@ -15,6 +15,7 @@ client = NutanixClient()
 with open(os.path.join(_here, "create_full_vpc_config.yaml"), "r") as f:
     config = yaml.safe_load(f)
 
+cluster_name         = config.get("cluster")
 subnets_cfg          = config.get("subnets", [])
 transit_vpcs_cfg     = config.get("transit_vpcs", [])
 transit_overlays_cfg = config.get("transit_overlays", [])
@@ -196,13 +197,11 @@ def create_overlay(overlay, vpcs_map):
 if subnets_cfg:
     step(1, f"Creating {len(subnets_cfg)} VLAN subnet(s)")
 
-    print(f"{'#':<4} {'Name':<30} {'ExtId':<40}")
-    print("-" * 75)
-    for i, c in enumerate(all_clusters):
-        print(f"{i:<4} {c.get('name',''):<30} {c.get('extId',''):<40}")
-    print()
-    choice         = int(input("Select cluster # for VLAN subnets: "))
-    cluster_ext_id = all_clusters[choice].get("extId")
+    cluster_ext_id = clusters_map.get(cluster_name)
+    if not cluster_ext_id:
+        print(f"ERROR: cluster '{cluster_name}' not found in Prism")
+        exit(1)
+    print(f"Using cluster: {cluster_name} ({cluster_ext_id})")
 
     tasks = [create_vlan_subnet(subnet, cluster_ext_id) for subnet in subnets_cfg]
     wait_for_tasks(tasks)

@@ -1,3 +1,5 @@
+cluster: "SwanzyTech-NTX01"
+
 # ============================================================
 # STEP 1 — VLAN Subnets
 # Physical subnets on the cluster. Created first since VPCs
