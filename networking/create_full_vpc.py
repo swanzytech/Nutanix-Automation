@@ -12,7 +12,7 @@ client = NutanixClient()
 # --------------------------------------------------
 # Load config
 # --------------------------------------------------
-with open(os.path.join(_here, "network_config.yaml"), "r") as f:
+with open(os.path.join(_here, "create_full_vpc_config.yaml"), "r") as f:
     config = yaml.safe_load(f)
 
 subnets_cfg          = config.get("subnets", [])
