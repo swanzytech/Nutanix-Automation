@@ -1,13 +1,17 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from client import NutanixClient
 import uuid
 import yaml
+
+_here = os.path.dirname(os.path.abspath(__file__))
 
 client = NutanixClient()
 
 # --------------------------------------------------
 # Load config file
 # --------------------------------------------------
-with open("subnet_config.yaml", "r") as f:
+with open(os.path.join(_here, "subnet_config.yaml"), "r") as f:
     config = yaml.safe_load(f)
 
 subnets = config.get("subnets", [])

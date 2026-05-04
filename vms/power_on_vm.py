@@ -1,3 +1,5 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from client import NutanixClient
 
 client = NutanixClient()
@@ -12,13 +14,13 @@ for i, vm in enumerate(vms):
 
 # Select VMs
 print()
-choices  = input("Enter the # of the VM(s) to restart (comma separated): ")
+choices  = input("Enter the # of the VM(s) to power on (comma separated): ")
 selected = [vms[int(i.strip())] for i in choices.split(",")]
 
-# restart each
+# Power on each
 for vm in selected:
-    print(f"\nrestarting {vm.get('name')}...")
-    r = client.vm_action(vm.get("extId"), "reset")
+    print(f"\nPowering on {vm.get('name')}...")
+    r = client.vm_action(vm.get("extId"), "power-on")
     if r.status_code in (200, 202):
         print(f"  Success!")
     else:
