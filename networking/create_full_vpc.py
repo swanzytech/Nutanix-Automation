@@ -23,6 +23,7 @@ vpcs_cfg             = config.get("vpcs", [])
 overlays_cfg         = config.get("overlays", [])
 local_gateways       = config.get("local_gateways", [])
 remote_gateways      = config.get("remote_gateways", [])
+bgp_sessions_cfg     = config.get("bgp_sessions", [])
 
 # --------------------------------------------------
 # Fetch shared resources up front
@@ -89,6 +90,27 @@ def wait_for_tasks(task_ids, poll_interval=5, timeout=300):
 
 def fetch_map(endpoint):
     return {item.get("name"): item.get("extId") for item in client.get(endpoint)}
+
+def wait_for_gateways(names, poll_interval=15, timeout=600):
+    print(f"\nWaiting for {len(names)} local gateway(s) to reach UP state (timeout: {timeout}s)...")
+    deadline = time.time() + timeout
+    pending  = set(names)
+    while pending and time.time() < deadline:
+        all_gws = client.get("/networking/v4.0/config/gateways")
+        for gw in all_gws:
+            name  = gw.get("name")
+            state = gw.get("status", {}).get("state", "UNKNOWN")
+            if name in pending and state == "UP":
+                print(f"  [UP] {name}")
+                pending.discard(name)
+        if pending:
+            elapsed = int(timeout - (deadline - time.time()))
+            print(f"  Still waiting: {sorted(pending)} ({elapsed}s elapsed)")
+            time.sleep(poll_interval)
+    if pending:
+        print(f"  WARNING: gateway(s) not UP within {timeout}s — {sorted(pending)}")
+    else:
+        print("  All local gateways are UP.")
 
 def step(n, label):
     print(f"\n{'='*60}")
@@ -322,6 +344,48 @@ if local_gateways or remote_gateways:
 
         print(f"Creating remote gateway '{gw['name']}' (IP: {gw['service_ip']}, ASN: {gw['asn']})...")
         ntnx_post("/networking/v4.0/config/gateways", payload)
+        time.sleep(2)
+
+# --------------------------------------------------
+# STEP 7: Create BGP sessions
+# --------------------------------------------------
+if bgp_sessions_cfg:
+    step(7, f"Creating {len(bgp_sessions_cfg)} BGP session(s)")
+    if local_gateways:
+        wait_for_gateways([gw["name"] for gw in local_gateways])
+    print("Refreshing gateways...")
+    gateways_map = {g.get("name"): g.get("extId") for g in client.get("/networking/v4.0/config/gateways")}
+
+    for session in bgp_sessions_cfg:
+        name           = session["name"]
+        local_gw_id    = gateways_map.get(session["local_gateway"])
+        remote_gw_id   = gateways_map.get(session["remote_gateway"])
+
+        if not local_gw_id:
+            print(f"Skipping '{name}' — local gateway '{session['local_gateway']}' not found")
+            continue
+        if not remote_gw_id:
+            print(f"Skipping '{name}' — remote gateway '{session['remote_gateway']}' not found")
+            continue
+
+        payload = {
+            "name":                   name,
+            "localGatewayReference":  local_gw_id,
+            "remoteGatewayReference": remote_gw_id,
+        }
+
+        if "local_interface_ip" in session:
+            payload["localGatewayInterfaceIpAddress"] = {
+                "ipv4": {"value": session["local_interface_ip"]}
+            }
+
+        if session.get("advertise_all_prefixes"):
+            payload["shouldAdvertiseAllExternallyRoutablePrefixes"] = True
+
+        print(f"Creating BGP session '{name}'")
+        if "local_interface_ip" in session:
+            print(f"  Interface: {session['local_interface_ip']}")
+        ntnx_post("/networking/v4.0/config/bgp-sessions", payload)
         time.sleep(2)
 
 print("\nDone!")

@@ -1,0 +1,21 @@
+# ============================================================
+# BGP Sessions
+# Each session links a local gateway interface to a remote
+# gateway. One session per interface IP is the typical pattern.
+#
+# local_gateway / remote_gateway: must match names in Prism
+# local_interface_ip: which interface on the local gateway
+# advertise_all_prefixes: true to advertise all externallyRoutablePrefixes
+# ============================================================
+bgp_sessions:
+  - name: "ZEN-SV2-BGP-1"
+    local_gateway: "ZEN-BGP-LOCAL"
+    remote_gateway: "BGP-REMOTE"
+    local_interface_ip: "198.18.129.242"
+    advertise_all_prefixes: true
+
+  - name: "ZEN-SV2-BGP-2"
+    local_gateway: "ZEN-BGP-LOCAL"
+    remote_gateway: "BGP-REMOTE"
+    local_interface_ip: "198.18.129.243"
+    advertise_all_prefixes: true

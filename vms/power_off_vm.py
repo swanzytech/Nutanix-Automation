@@ -4,18 +4,15 @@ import urllib3
 from dotenv import load_dotenv
 import os
 
-# Suppress SSL warnings for self-signed certs
 urllib3.disable_warnings()
 
-# Load credentials from .env file
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"))
 PC_IP    = os.getenv("PC_IP")
 USERNAME = os.getenv("PC_USER")
 PASSWORD = os.getenv("PC_PASSWORD")
 
 BASE_URL = f"https://{PC_IP}:9440/api"
 
-# Setup session
 session = requests.Session()
 session.auth   = (USERNAME, PASSWORD)
 session.verify = False

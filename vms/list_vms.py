@@ -5,7 +5,7 @@ import os
 
 urllib3.disable_warnings()
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"))
 PC_IP    = os.getenv("PC_IP")
 USERNAME = os.getenv("PC_USER")
 PASSWORD = os.getenv("PC_PASSWORD")
