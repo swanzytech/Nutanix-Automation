@@ -1,14 +1,14 @@
 vpcs:
-  - name: "Child-VPC-2"
+  - name: "ZEN-SV2-ACTIVE"
     cidrs:
       - "1.1.1.0/24"
       - "2.2.2.0/24"
 
-  - name: "Child-VPC-1"
+  - name: "ZEN-SV2-WORKLOADS"
     cidrs:
       - "3.3.3.0/24"
 
-  - name: "Test-VPC"
+  - name: "ZEN-SV2-Transit-VPC"
     cidrs:
       - "3.3.3.0/24"
       - "1.1.1.0/24"

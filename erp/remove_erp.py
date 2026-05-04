@@ -24,7 +24,7 @@ vpcs     = {v.get("name"): v.get("extId") for v in all_vpcs}
 
 for update in vpc_updates:
     vpc_name  = update["name"]
-    to_remove = set(update.get("cidrs", []))
+    to_remove = set(update.get("cidrs") or [])
 
     vpc_ext_id = vpcs.get(vpc_name)
     if not vpc_ext_id:
